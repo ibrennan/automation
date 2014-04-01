@@ -11,11 +11,12 @@ Here we set up the variables for the application to run.
 
 */
 
-var	viewport = [1024,768],
+var	scriptName = "Template",
+	viewport = [1024,768],
 	outputDir = "output/",
 	inputDir = "input/",
 	dataFile = inputDir + "data.csv",
-	libsDir = "../libs/",
+	libsDir = "../_libs/",
 	fs = require('fs'),
 	system = require('system'),
 	casper = require('casper').create({
@@ -23,7 +24,8 @@ var	viewport = [1024,768],
 		clientScripts:  [
 	        libsDir + 'jquery.js'
 	    ]
-	});
+	}),
+	date = new Date();
 
 /*
    ###    ########  ########  
@@ -49,7 +51,12 @@ var application = {
 
 	global : {
 		inputURLS : [],
-		result : {}
+		output : {
+			name : scriptName,
+			date : date.getDate() + "/" + date.getMonth() + 1 + "/" + date.getFullYear(),
+			time: date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+			result : {}
+		}
 	},
 
 	/*
@@ -201,7 +208,7 @@ var application = {
 					});
 
 					// Store the results of our work
-					application.global.result[url] = {
+					application.global.output.result[url] = {
 						title : title
 					};
 
@@ -223,7 +230,7 @@ var application = {
 
 		casper.then(function(){
 
-			var output = JSON.stringify(application.global.result);
+			var output = JSON.stringify(application.global.output);
 
 			fs.write(outputDir + "results.json", output, 'w');
 
