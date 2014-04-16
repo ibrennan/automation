@@ -17,41 +17,35 @@ var	scriptName = "Screenshot",
 			'dimensions': {
 				width: 1280,
 				height: 1024
-			},
-			'useragent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/537.36(KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36'
+			}
 		},
 		{
 			'name': 'smartphone-portrait',
 			'dimensions': {
 				width: 320,
 				height: 480
-			},
-			'useragent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 6_1_4 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10B350 Safari/8536.25'
+			}		
 		},
 		{
 			'name': 'smartphone-landscape',
 			'dimensions': {
 				width: 480,
 				height: 320
-			},
-			'useragent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 6_1_4 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10B350 Safari/8536.25'
+			}
 		},
 		{
 			'name': 'tablet-portrait',
 			'dimensions': {
 				width: 768,
 				height: 1024
-			},
-			'useragent': 'Mozilla/5.0 (iPad; CPU OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53'
+			}
 		},
 		{
 			'name': 'tablet-landscape',
 			'dimensions': {
 				width: 1024,
 				height: 768
-			},
-			'useragent': 'Mozilla/5.0 (iPad; CPU OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53'
-
+			}
 		}
 	],
 	outputDir = "output/",
@@ -92,7 +86,7 @@ var application = {
 		output : {
 			name : scriptName,
 			date : date.getDate() + "-" + date.getMonth() + 1 + "-" + date.getFullYear(),
-			time : date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+			time : date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds(),
 			result : {}
 		}
 	},
@@ -207,22 +201,22 @@ var application = {
 
 		});
 
+		casper.userAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X)');
+
 		casper.eachThen(application.global.inputURLS, function(url){
 
 			this.thenOpen(url.data, function(response){
 
-				this.echo("Opening: " + response.url, "INFO");
+				this.echo("Processing: " + response.url, "INFO");
 
 				// Wait for assets to load
 				// (there must be a much better way to do this?)
-				this.wait(5000);
+				this.wait(10000);
 
 			});
 
 			this.eachThen(viewports, function(viewport){
 				viewport = viewport.data;
-
-				this.echo("Processing: " + viewport.name, "COMMENT");
 
 				// Resize browser
 				this.viewport(viewport.dimensions.width, viewport.dimensions.height);
@@ -244,7 +238,7 @@ var application = {
 				        height: height
 					});
 
-					this.echo("Screenshot captured for: " + response.url, "COMMENT");
+					this.echo("Screenshot captured for: " + viewport.name, "COMMENT");
 
 				});
 
