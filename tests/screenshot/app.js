@@ -1,4 +1,5 @@
 /*
+
  ######  ######## ######## ##     ## ########  
 ##    ## ##          ##    ##     ## ##     ## 
 ##       ##          ##    ##     ## ##     ## 
@@ -7,59 +8,60 @@
 ##    ## ##          ##    ##     ## ##        
  ######  ########    ##     #######  ##        
 
-Here we set up the variables for the application to run.
-
 */
 
 var	scriptName = "Screenshot",
-	viewports = {
+	viewports = [
+		{
+			'name': 'desktop',
+			'dimensions': {
+				width: 1280,
+				height: 1024
+			},
+			'useragent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/537.36(KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36'
+		},
 		{
 			'name': 'smartphone-portrait',
-			'viewport': {
+			'dimensions': {
 				width: 320,
 				height: 480
-			}
+			},
+			'useragent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 6_1_4 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10B350 Safari/8536.25'
 		},
 		{
 			'name': 'smartphone-landscape',
-			'viewport': {
+			'dimensions': {
 				width: 480,
 				height: 320
-			}
+			},
+			'useragent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 6_1_4 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10B350 Safari/8536.25'
 		},
 		{
 			'name': 'tablet-portrait',
-			'viewport': {
+			'dimensions': {
 				width: 768,
 				height: 1024
-			}
+			},
+			'useragent': 'Mozilla/5.0 (iPad; CPU OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53'
 		},
 		{
 			'name': 'tablet-landscape',
-			'viewport': {
+			'dimensions': {
 				width: 1024,
 				height: 768
-			}
-		},
-		{
-			'name': 'desktop',
-			'viewport': {
-				width: 1280,
-				height: 1024
-			}
+			},
+			'useragent': 'Mozilla/5.0 (iPad; CPU OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53'
+
 		}
-	},
+	],
 	outputDir = "output/",
 	inputDir = "input/",
 	dataFile = inputDir + "data.csv",
-	libsDir = "../_libs/",
+	libsDir = "../../_libs/",
 	fs = require('fs'),
 	system = require('system'),
 	casper = require('casper').create({
-		logLevel: "error",
-		clientScripts:  [
-	        libsDir + 'jquery.js'
-	    ]
+		logLevel: "info"
 	}),
 	date = new Date();
 
@@ -89,8 +91,8 @@ var application = {
 		inputURLS : [],
 		output : {
 			name : scriptName,
-			date : date.getDate() + "/" + date.getMonth() + 1 + "/" + date.getFullYear(),
-			time: date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
+			date : date.getDate() + "-" + date.getMonth() + 1 + "-" + date.getFullYear(),
+			time : date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(),
 			result : {}
 		}
 	},
@@ -195,9 +197,7 @@ var application = {
 	parseURL : function(){
 
 		// Start the CasperJS party
-		casper.start();
-
-		casper.then(function() {
+		casper.start(function(){
 
 			if(application.global.inputURLS.length === 0){
 
@@ -205,69 +205,46 @@ var application = {
 
 			};
 
-			// Set the viewport
-			this.viewport(viewport[0], viewport[1]);
+		});
 
-			this.eachThen(application.global.inputURLS, function(url){
+		casper.eachThen(application.global.inputURLS, function(url){
 
-				this.echo("Processing: " + url.data, "INFO");
+			this.thenOpen(url.data, function(response){
 
-				this.thenOpen(url.data, function(){
+				this.echo("Opening: " + response.url, "INFO");
 
-					/*
-					   ###     ######  ######## ####  #######  ##    ## 
-					  ## ##   ##    ##    ##     ##  ##     ## ###   ## 
-					 ##   ##  ##          ##     ##  ##     ## ####  ## 
-					##     ## ##          ##     ##  ##     ## ## ## ## 
-					######### ##          ##     ##  ##     ## ##  #### 
-					##     ## ##    ##    ##     ##  ##     ## ##   ### 
-					##     ##  ######     ##    ####  #######  ##    ## 
-					*/
+				// Wait for assets to load
+				// (there must be a much better way to do this?)
+				this.wait(5000);
 
-					// Wait for all assets to load, will swap this to a better solution at some point
-					// a time based pause will be flakey.
-					this.wait(5000);
+			});
 
-					this.each(viewports, function(casper, viewport) {
+			this.eachThen(viewports, function(viewport){
+				viewport = viewport.data;
 
-						this.then(function() {
+				this.echo("Processing: " + viewport.name, "COMMENT");
 
-							this.viewport(viewport["viewport"]["width"], viewport["viewport"]["height"]);
+				// Resize browser
+				this.viewport(viewport.dimensions.width, viewport.dimensions.height);
+
+				this.then(function(response){
+
+					var formattedURL = response.url.replace('https://', '').replace('http://', '').replace(/\/$/, ""),
+						filename = outputDir + application.global.output.date + " " + application.global.output.time + "/" + formattedURL + "/" + viewport.name + ".png",
+						height = this.evaluate(function(){
+
+							return document.documentElement.scrollHeight
 
 						});
 
-						this.then(function(){
-
-							this.echo('Screenshot - ' + viewport["name"] + ' (' + viewport["viewport"]["width"] + 'x' + viewport["viewport"]["height"] + ')', 'info');
-
-							var date = date.getDate() + "/" + date.getMonth() + 1 + "/" + date.getFullYear();
-							
-							this.capture('output/' + date + '/' + viewport["name"] + '-' + viewport["viewport"]["width"] + 'x' + viewport["viewport"]["height"] + '.png', {
-						
-						top: 0,
-						left: 0,
-						width: viewport.viewport.width,
-						height: viewport.viewport.height
-						});
-						});
-						});
-
-					var title = this.evaluate(function(){
-
-						return document.title;
-
+					this.capture(filename, {
+    					top: 0,
+    					left: 0,
+				        width: viewport.dimensions.width,
+				        height: height
 					});
 
-					var url = this.evaluate(function(){
-
-						return window.location.href;
-
-					});
-
-					// Store the results of our work
-					application.global.output.result[url] = {
-						title : title
-					};
+					this.echo("Screenshot captured for: " + response.url, "COMMENT");
 
 				});
 
