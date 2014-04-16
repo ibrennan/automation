@@ -7,8 +7,20 @@ A collection of automated scripts for processing sites / content.
 
 Uses CasperJS.
 
+## Scripts
 
-## Running Scripts
+The following scripts are in this repo:
+
+#### Template
+https://github.com/ibrennan/automation/tree/master/template
+This is the template script, duplicate it and use it as the base for automated processes.
+
+#### Critical CSS
+https://github.com/ibrennan/automation/tree/master/content/critical-css
+Used to create the critical CSS for your site, improves browser paint speeds. Inspired by this post: http://paul.kinlan.me/detecting-critical-above-the-fold-css/
+
+
+### Running Scripts
 
 1. Ensure you have CasperJS installed on your machine: http://casperjs.org
 2. Open Terminal, and CD to your script "CD ~/automation/content/critical-css"
