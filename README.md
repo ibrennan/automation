@@ -19,6 +19,11 @@ This is the template script, duplicate it and use it as the base for automated p
 https://github.com/ibrennan/automation/tree/master/content/critical-css
 Used to create the critical CSS for your site, improves browser paint speeds. Inspired by this post: http://paul.kinlan.me/detecting-critical-above-the-fold-css/
 
+#### Automated responsive screenshots
+https://github.com/ibrennan/automation/tree/master/tests/screenshot
+This script will run through your defined list of URLs (input/data.csv) and generate a screenshot of each page at the defined resolutions. The results of the script will be stored in the 'output' directory.
+Blog post here: https://medium.com/p/197fad8c1840
+
 
 ### Running Scripts
 
