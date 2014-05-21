@@ -85,7 +85,7 @@ var application = {
 		inputURLS : [],
 		output : {
 			name : scriptName,
-			date : date.getDate() + "-" + date.getMonth() + 1 + "-" + date.getFullYear(),
+			date : date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear(),
 			time : date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds(),
 			result : {}
 		}
